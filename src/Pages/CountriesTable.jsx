@@ -7,16 +7,26 @@ const CountriesTable = () => {
   const [filterCountries, setFilterCountries] = useState([]);
   const [search, setSearch] = useState("");
 
-  const getCountries = async () => {
-    try {
-      const url = await axios.get("https://restcountries.com/v2/all");
-      // .then((data) => setCountries(data.data));
-      setCountries(url.data);
-      setFilterCountries(url.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  useEffect(() => {
+    const getCountries = async () => {
+      try {
+        const url = await axios.get("https://restcountries.com/v2/all");
+        // .then((data) => setCountries(data.data));
+        setCountries(url.data);
+        setFilterCountries(url.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getCountries();
+  }, []);
+
+  useEffect(() => {
+    const result = countries.filter((country) => {
+      return country.name.toLowerCase().match(search.toLowerCase());
+    });
+    setFilterCountries(result);
+  }, [countries, search]);
 
   const columns = [
     {
@@ -49,17 +59,6 @@ const CountriesTable = () => {
     },
   ];
 
-  useEffect(() => {
-    getCountries();
-  }, []);
-
-  useEffect(() => {
-    const result = countries.filter((country) => {
-      return country.name.toLowerCase().match(search.toLowerCase());
-    });
-    setFilterCountries(result);
-  }, [countries, search]);
-
   return (
     <DataTable
       title="Countries List"
@@ -74,13 +73,16 @@ const CountriesTable = () => {
       actions={<button className="btn btn-info"> Export </button>}
       subHeader
       subHeaderComponent={
-        <input
-          type="text"
-          placeholder="Search here"
-          className="w-25 form-control"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        ></input>
+        <>
+          <p className="my-2 me-3 fw-bold">By Country Name</p>
+          <input
+            type="text"
+            placeholder="Search here"
+            className="w-25 form-control"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          ></input>
+        </>
       }
       //   subHeaderAlign="left"
     ></DataTable>
